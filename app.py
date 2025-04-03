@@ -1,13 +1,10 @@
 from flask import Flask, request, render_template, redirect, url_for, session
-from dotenv import load_dotenv
 from itsdangerous import URLSafeSerializer
 import os
 import json
 
 from utils import send_html_email, render_email_template, get_worksheet, hash_email
 
-# Load .env variables
-load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
