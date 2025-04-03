@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <title>ოლიმპიადაზე რეგისტრაცია</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Noto Sans Georgian', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            color: #1f2937;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        input {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: none;
+            background-color: #2563eb;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        select {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: white;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        input, select {
+            padding: 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: white;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .error {
+            color: #dc2626;
+            text-align: center;
+        }
+
+        .reg-id {
+            font-size: 1.5rem;
+            color: #2563eb;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .form-container {
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    {% if step == "email" %}
+        <h2>შეიყვანე შენი ელფოსტა</h2>
+        <form method="POST">
+            <input type="email" name="email" placeholder="მაგ. student@example.com" required>
+            <button type="submit">გაგზავნა</button>
+        </form>
+
+    {% elif step == "check_email" %}
+        <h2>დაადასტურე ელფოსტა</h2>
+        <p style="text-align: center;">
+            დადასტურების ბმული გამოიგზავნა მისამართზე:<br>
+            <b>{{ session.email }}</b>
+        </p>
+        <p style="text-align: center;">
+            გთხოვთ, გადახვიდეთ ელფოსტაზე და დაადასტუროთ რეგისტრაცია ბმულის საშუალებით.
+        </p>
+
+    {% elif step == "verify" %}
+        <h2>შეიყვანე მიღებული კოდი</h2>
+        <form method="POST">
+            <input type="text" name="code" placeholder="მაგ. 123456" required>
+            <button type="submit">დადასტურება</button>
+        </form>
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+
+    {% elif step == "info" %}
+        <h2>მონაწილის ინფორმაცია</h2>
+        <form method="POST">
+            <input type="text" name="fname" placeholder="სახელი" required>
+            <input type="text" name="lname" placeholder="გვარი" required>
+            <input type="text" name="personalId" placeholder="პირადი ნომერი" minlength="11" maxlength="11" required>
+
+            <!-- Region Dropdown -->
+            <select id="region" name="region" required>
+                <option value="">აირჩიე რეგიონი</option>
+                {% for region in schools %}
+                    <option value="{{ region }}">{{ region }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- District Dropdown -->
+            <select id="district" name="district" required>
+                <option value="">აირჩიე მუნიციპალიტეტი</option>
+            </select>
+
+            <!-- School Dropdown -->
+            <select name="school" id="school" required>
+                <option value="">აირჩიე სკოლა</option>
+            </select>
+
+            <button type="submit">რეგისტრაცია</button>
+        </form>
+
+        <!-- JavaScript to handle dropdown logic -->
+        <script>
+            const schools = {{ schools | tojson }};
+            const regionSelect = document.getElementById('region');
+            const districtSelect = document.getElementById('district');
+            const schoolSelect = document.getElementById('school');
+
+            regionSelect.addEventListener('change', function () {
+                const selectedRegion = this.value;
+                districtSelect.innerHTML = '<option value="">აირჩიე მუნიციპალიტეტი</option>';
+                schoolSelect.innerHTML = '<option value="">აირჩიე სკოლა</option>';
+
+                if (schools[selectedRegion]) {
+                    for (let district in schools[selectedRegion]) {
+                        const option = document.createElement('option');
+                        option.value = district;
+                        option.textContent = district;
+                        districtSelect.appendChild(option);
+                    }
+                }
+            });
+
+            districtSelect.addEventListener('change', function () {
+                const selectedRegion = regionSelect.value;
+                const selectedDistrict = this.value;
+                schoolSelect.innerHTML = '<option value="">აირჩიე სკოლა</option>';
+
+                const schoolList = schools[selectedRegion][selectedDistrict];
+                if (schoolList) {
+                    schoolList.forEach(school => {
+                        const option = document.createElement('option');
+                        option.value = school.school_name;
+                        option.textContent = school.school_name;
+                        schoolSelect.appendChild(option);
+                    });
+                }
+            });
+        </script>
+
+    {% elif step == "done" %}
+        <h2>რეგისტრაცია დასრულდა!</h2>
+        <p class="reg-id">შენი მონაწილეობის კოდი: <br> <b>{{ reg_id }}</b></p>
+        <p style="text-align: center;">კოდი ასევე გამოგზავნილია ელ-ფოსტაზე. წარმატებებს გისურვებთ!</p>
+    {% endif %}
+</div>
+</body>
+</html>
