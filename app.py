@@ -72,7 +72,7 @@ def student_info():
             html_body = render_email_template("emails/backup.html", payload=payload)
             send_html_email('rezi.gelenidze7@gmail.com', "Backup record", html_body)
 
-        html_body = render_email_template("emails/registration_success_email.html")
+        html_body = render_email_template("emails/registration_success_email.html", reg_id=reg_id)
         send_html_email(session["email"], "ოლიმპიადაზე რეგისტრაცია დასრულდა", html_body)
 
         return render_template("register.html", step="done", reg_id=reg_id)
