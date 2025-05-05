@@ -29,7 +29,7 @@
             width: 100%;
         }
 
-        h2 {
+        h2, h3, h4 {
             text-align: center;
             color: #1f2937;
         }
@@ -102,19 +102,27 @@
 </head>
 <body>
 <div class="form-container">
+    <p style="text-align: center; font-weight: bold;">
+        საქართველოს V-VI კლასების მათემატიკის ოლიმპიადა
+    </p>
+
     <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="200px">
     </div>
 
+    <h2>სარეგისტრაციო ფორმა</h2>
+
+    <hr \>
+
     {% if step == "email" %}
-        <h2>შეიყვანე შენი ელფოსტა</h2>
+        <h3>შეიყვანე შენი ელფოსტა</h3>
         <form method="POST">
             <input type="email" name="email" placeholder="მაგ. student@gmail.com" required>
             <button type="submit">დადასტურება</button>
         </form>
 
     {% elif step == "check_email" %}
-        <h2>დაადასტურე ელფოსტა</h2>
+        <h3>დაადასტურე ელფოსტა</h3>
         <p style="text-align: center;">
             დადასტურების ბმული გამოიგზავნა მისამართზე:<br>
             <b>{{ session.email }}</b>
@@ -124,7 +132,7 @@
         </p>
 
     {% elif step == "verify" %}
-        <h2>შეიყვანე მიღებული კოდი</h2>
+        <h3>შეიყვანე მიღებული კოდი</h3>
         <form method="POST">
             <input type="text" name="code" placeholder="მაგ. 123456" required>
             <button type="submit">დადასტურება</button>
@@ -132,7 +140,7 @@
         {% if error %}<p class="error">{{ error }}</p>{% endif %}
 
     {% elif step == "info" %}
-        <h2>მონაწილის ინფორმაცია</h2>
+        <h3>მონაწილის ინფორმაცია</h3>
         <form method="POST">
             <input type="text" name="fname" placeholder="სახელი" required>
             <input type="text" name="lname" placeholder="გვარი" required>
@@ -216,6 +224,10 @@
         <p class="reg-id">შენი მონაწილეობის კოდი: <br> <b>{{ reg_id }}</b></p>
         <p style="text-align: center;">კოდი ასევე გამოგზავნილია ელ-ფოსტაზე. წარმატებებს გისურვებთ!</p>
     {% endif %}
+
+    <hr \>
+
+    <p style="color: darkgreen; text-align: center">ოლიმპიადაში მონაწილეობა უფასოა!</p>
 </div>
 
 <script>
