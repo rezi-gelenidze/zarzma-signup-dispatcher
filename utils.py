@@ -49,6 +49,7 @@ def hash_email(email: str) -> str:
     email = email.strip().lower()
     local, domain = email.split('@')
     local = local.replace('.', '')  # remove dots only from local part
-    cleaned_email = f"{local}@{domain}"
+    salt = "CHEFS_SECRET_SPICE"  # use a constant salt for eliminating plaintext attacks
+    cleaned_email = f"{local}@{domain}-{salt}"
     hashed = hashlib.sha256(cleaned_email.encode()).hexdigest()
     return hashed[:6].lower()  # return first 6 hex chars in lower
