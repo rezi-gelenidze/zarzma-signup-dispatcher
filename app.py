@@ -23,7 +23,7 @@ def request_email():
         verify_url = url_for("verify_email", token=token, _external=True)
 
         html_body = render_email_template("emails/verification_email.html", verify_url=verify_url)
-        send_html_email(email, "ელფოსტის დადასტურება", html_body)
+        send_html_email(email, "ოლიმპიადა V-VI კლასი", html_body)
 
         return render_template("register.html", step="check_email")  # New "Check your email" step
     return render_template("register.html", step="email")
@@ -73,7 +73,7 @@ def student_info():
             send_html_email('rezi.gelenidze7@gmail.com', "Backup record", html_body)
 
         html_body = render_email_template("emails/registration_success_email.html")
-        send_html_email(session["email"], "რეგისტრაცია დასრულდა", html_body)
+        send_html_email(session["email"], "ოლიმპიადაზე რეგისტრაცია დასრულდა", html_body)
 
         return render_template("register.html", step="done", reg_id=reg_id)
 
