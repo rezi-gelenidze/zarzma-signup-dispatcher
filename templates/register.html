@@ -102,11 +102,15 @@
 </head>
 <body>
 <div class="form-container">
+    <div style="display: flex; justify-content: center; margin-bottom: 1rem;">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" width="200px">
+    </div>
+
     {% if step == "email" %}
         <h2>შეიყვანე შენი ელფოსტა</h2>
         <form method="POST">
-            <input type="email" name="email" placeholder="მაგ. student@example.com" required>
-            <button type="submit">გაგზავნა</button>
+            <input type="email" name="email" placeholder="მაგ. student@gmail.com" required>
+            <button type="submit">დადასტურება</button>
         </form>
 
     {% elif step == "check_email" %}
@@ -133,6 +137,19 @@
             <input type="text" name="fname" placeholder="სახელი" required>
             <input type="text" name="lname" placeholder="გვარი" required>
             <input type="text" name="personalId" placeholder="პირადი ნომერი" minlength="11" maxlength="11" required>
+            <div style="display: flex; align-items: center;">
+                <span style="background-color: #eceef3; padding: 0.5rem; border-radius: 6px 0 0 6px; border: 1px solid #ccc; border-right: none;">+995</span>
+                <input
+                        type="tel"
+                        name="phone"
+                        placeholder="საკონტაქტო ტელეფონი"
+                        pattern="[0-9]{9}"
+                        minlength="9"
+                        maxlength="9"
+                        required
+                        style="flex: 1; padding: 0.5rem; border-radius: 0 6px 6px 0; border: 1px solid #ccc; border-left: none;"
+                >
+            </div>
 
             <!-- Region Dropdown -->
             <select id="region" name="region" required>
@@ -200,5 +217,18 @@
         <p style="text-align: center;">კოდი ასევე გამოგზავნილია ელ-ფოსტაზე. წარმატებებს გისურვებთ!</p>
     {% endif %}
 </div>
+
+<script>
+    document.querySelectorAll("form").forEach(form => {
+        form.addEventListener("submit", function () {
+            const submitButton = form.querySelector("button[type='submit']");
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = "დაელოდეთ...";
+            }
+        });
+    });
+</script>
+
 </body>
 </html>

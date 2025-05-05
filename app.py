@@ -11,6 +11,7 @@ app.secret_key = os.getenv("SECRET_KEY")
 # Token serializer
 serializer = URLSafeSerializer(app.secret_key)
 
+
 # Step 1: Email entry
 @app.route("/", methods=["GET", "POST"])
 def request_email():
@@ -27,6 +28,7 @@ def request_email():
         return render_template("register.html", step="check_email")  # New "Check your email" step
     return render_template("register.html", step="email")
 
+
 # Step 2: Link-based verification
 @app.route("/verify/<token>")
 def verify_email(token):
@@ -37,6 +39,7 @@ def verify_email(token):
         return redirect(url_for("student_info"))
     except Exception:
         return render_template("register.html", step="verify", error="ბმული არასწორია ან ვადა გაუვიდა")
+
 
 # Step 3: Registration form
 @app.route("/submit", methods=["GET", "POST"])
@@ -51,16 +54,25 @@ def student_info():
         district = request.form["district"]
         school = request.form["school"]
         personal_id = request.form["personalId"]
+        phone = request.form["phone"]
 
         reg_id = hash_email(session["email"])
 
         worksheet = get_worksheet()
-        worksheet.append_row([
-            session["email"], reg_id, fname, lname,
-            personal_id, region, district, school
-        ])
 
-        html_body = render_email_template("emails/registration_success_email.html", reg_id=reg_id)
+        payload = [
+            session["email"], reg_id, fname, lname,
+            personal_id, phone, region, district, school
+        ]
+        try:
+            worksheet.append_row(payload)
+        except Exception as e:
+            # Email the row to admin for manual entry
+            print(f"Error writing to Google Sheets: {e}")
+            html_body = render_email_template("emails/backup.html", payload=payload)
+            send_html_email('rezi.gelenidze7@gmail.com', "Backup record", html_body)
+
+        html_body = render_email_template("emails/registration_success_email.html")
         send_html_email(session["email"], "რეგისტრაცია დასრულდა", html_body)
 
         return render_template("register.html", step="done", reg_id=reg_id)
