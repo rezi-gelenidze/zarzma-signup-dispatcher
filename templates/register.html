@@ -128,7 +128,8 @@
             <b>{{ session.email }}</b>
         </p>
         <p style="text-align: center;">
-            გთხოვთ, გადახვიდეთ ელფოსტაზე და დაადასტუროთ რეგისტრაცია ბმულის საშუალებით. <br /> <span style="color:tomato;">შეამოწმეთ Spam საქაღალდეც.</span>
+            გთხოვთ, გადახვიდეთ ელფოსტაზე და დაადასტუროთ რეგისტრაცია ბმულის საშუალებით. <br/> <span
+                style="color:tomato;">შეამოწმეთ Spam საქაღალდეც.</span>
         </p>
 
     {% elif step == "verify" %}
@@ -144,6 +145,19 @@
         <form method="POST">
             <input type="text" name="fname" placeholder="სახელი" required>
             <input type="text" name="lname" placeholder="გვარი" required>
+
+            <label>აირჩიე კლასი</label>
+            <div style="display: flex; justify-content: space-around;">
+                <label>
+                    <input type="radio" name="grade" value="5" required>
+                    5 კლასი
+                </label>
+                <label>
+                    <input type="radio" name="grade" value="6">
+                    6 კლასი
+                </label>
+            </div>
+
             <input type="text" name="personalId" placeholder="პირადი ნომერი" minlength="11" maxlength="11" required>
             <div style="display: flex; align-items: center;">
                 <span style="background-color: #eceef3; padding: 0.5rem; border-radius: 6px 0 0 6px; border: 1px solid #ccc; border-right: none;">+995</span>
@@ -222,7 +236,8 @@
     {% elif step == "done" %}
         <h2>რეგისტრაცია დასრულდა!</h2>
         <p class="reg-id">შენი მონაწილეობის კოდი: <br> <b>{{ reg_id }}</b></p>
-        <p style="text-align: center;">კოდი ასევე გამოგზავნილია ელ-ფოსტაზე. წარმატებებს გისურვებთ! <br /> <span style="color:tomato;">შეამოწმეთ Spam საქაღალდეც.</span></p>
+        <p style="text-align: center;">კოდი ასევე გამოგზავნილია ელ-ფოსტაზე. წარმატებებს გისურვებთ! <br/> <span
+                style="color:tomato;">შეამოწმეთ Spam საქაღალდეც.</span></p>
     {% endif %}
 
     <hr \>

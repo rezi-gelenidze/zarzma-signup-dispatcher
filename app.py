@@ -55,6 +55,7 @@ def student_info():
         school = request.form["school"]
         personal_id = request.form["personalId"]
         phone = request.form["phone"]
+        grade = request.form["grade"]
 
         reg_id = hash_email(session["email"])
 
@@ -62,7 +63,7 @@ def student_info():
 
         payload = [
             session["email"], reg_id, fname, lname,
-            personal_id, phone, region, district, school
+            personal_id, phone, region, district, school, grade
         ]
         try:
             worksheet.append_row(payload)
