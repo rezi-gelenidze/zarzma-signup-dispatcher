@@ -1,85 +1,37 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, redirect, render_template
 from itsdangerous import URLSafeSerializer
 import os
-import json
 
-from utils import send_html_email, render_email_template, get_worksheet, hash_email
+from data import get_data
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
-
-# Token serializer
 serializer = URLSafeSerializer(app.secret_key)
 
 
-# Step 1: Email entry
 @app.route("/", methods=["GET", "POST"])
-def request_email():
+def form_redirect():
     if request.method == "POST":
-        email = request.form["email"]
-        session["email"] = email
-
-        token = serializer.dumps(email)
-        verify_url = url_for("verify_email", token=token, _external=True)
-
-        html_body = render_email_template("emails/verification_email.html", verify_url=verify_url)
-        send_html_email(email, "ოლიმპიადა V-VI კლასი", html_body)
-
-        return render_template("register.html", step="check_email")  # New "Check your email" step
-    return render_template("register.html", step="email")
+        o_id = request.form.get("o_id")
+        p_id = request.form.get("p_id")
+        grade = request.form.get("class")
 
 
-# Step 2: Link-based verification
-@app.route("/verify/<token>")
-def verify_email(token):
-    try:
-        email = serializer.loads(token)
-        session["verified"] = True
-        session["email"] = email
-        return redirect(url_for("student_info"))
-    except Exception:
-        return render_template("register.html", step="verify", error="ბმული არასწორია ან ვადა გაუვიდა")
+        if not o_id or not p_id:
+            return render_template("enter.html", error="გთხოვ შეავსო სამივე ველი.")
 
+        data = get_data()
 
-# Step 3: Registration form
-@app.route("/submit", methods=["GET", "POST"])
-def student_info():
-    if not session.get("verified"):
-        return redirect(url_for("request_email"))
+        if (o_id, p_id) not in data:
+            return render_template("enter.html", error="მოსწავლე ვერ მოიძებნა. გთხოვ გადაამოწმე მონაცემები.")
 
-    if request.method == "POST":
-        fname = request.form["fname"]
-        lname = request.form["lname"]
-        region = request.form["region"]
-        district = request.form["district"]
-        school = request.form["school"]
-        personal_id = request.form["personalId"]
-        phone = request.form["phone"]
-        grade = request.form["grade"]
-        preferred_location = request.form["preferredLocation"]
+        if int(grade) == 5:
+            target_url = f"https://docs.google.com/forms/d/e/1FAIpQLSeOw4wRb4ZDfhLdB7N-JlN5Yl1ZlP2bxCaI6n5zU0xXLbwcDg/viewform?usp=pp_url&entry.69264929={o_id}&entry.760426637={p_id}"
+        elif int(grade) == 6:
+            target_url = f"https://docs.google.com/forms/d/e/1FAIpQLScDF-zI6WYV6hf5YDNmC-7AVh6Gp4I6mB9GSEVtP9DvUi7cvg/viewform?usp=pp_url&entry.1548843900={o_id}&entry.1331201179={p_id}"
+        else:
+            return "არასწორი მონაცემები", 400
 
-        reg_id = hash_email(session["email"])
+        return redirect(target_url)
 
-        worksheet = get_worksheet()
-
-        payload = [
-            session["email"], reg_id, fname, lname,
-            personal_id, phone, region, district, school, grade, preferred_location
-        ]
-        try:
-            worksheet.append_row(payload)
-        except Exception as e:
-            # Email the row to admin for manual entry
-            print(f"Error writing to Google Sheets: {e}")
-            html_body = render_email_template("emails/backup.html", payload=payload)
-            send_html_email('rezi.gelenidze7@gmail.com', "Backup record", html_body)
-
-        html_body = render_email_template("emails/registration_success_email.html", reg_id=reg_id)
-        send_html_email(session["email"], "ოლიმპიადაზე რეგისტრაცია დასრულდა", html_body)
-
-        return render_template("register.html", step="done", reg_id=reg_id)
-
-    with open("schools.json", "r", encoding="utf-8") as f:
-        schools = json.load(f)
-
-    return render_template("register.html", step="info", schools=schools)
+    return render_template("enter.html")
